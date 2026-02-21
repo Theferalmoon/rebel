@@ -1,0 +1,33 @@
+name: security-review
+description: "Full security review — NIST 800-53 annotations, OWASP top 10, trust boundaries"
+tags: [security, nist, cmnd, daiv]
+
+steps:
+  - type: message
+    content: |
+      Perform a comprehensive security review of all files currently in chat.
+
+      Check for and fix:
+      1. OWASP Top 10 vulnerabilities (injection, XSS, broken auth, insecure deserialization, etc.)
+      2. Missing NIST 800-53 // SECURITY CONTROL: comments on security-relevant code
+      3. Missing // TRUST BOUNDARY: comments where external data enters the system
+      4. Hard-coded secrets, credentials, or API keys
+      5. Insecure defaults (debug mode, weak crypto, missing TLS verification)
+      6. Missing input validation at system boundaries
+      7. Race conditions or TOCTOU vulnerabilities
+      8. Overly broad permissions or missing least-privilege enforcement
+
+      For each issue found:
+      - Fix the vulnerability
+      - Add the appropriate NIST 800-53 // SECURITY CONTROL: comment
+      - Add // TRUST BOUNDARY: comment where relevant
+
+      At the end, add // DAIV CERTIFIED to the top of each file that passes review.
+
+  - type: message
+    content: |
+      Now summarize the security review:
+      - List all vulnerabilities found and fixed
+      - List all NIST 800-53 controls applied (e.g., SC-7, SI-10, AU-2)
+      - Flag anything that needs human review before DAIV certification
+      - Rate overall security posture: NEEDS_WORK / ACCEPTABLE / STRONG

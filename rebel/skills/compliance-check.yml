@@ -1,0 +1,36 @@
+name: compliance-check
+description: "CIS v8 / NRS 603A / Nevada PSP compliance review of code in chat"
+tags: [compliance, cis, nrs, nevada, cmnd]
+
+steps:
+  - type: mcp
+    content: "compliance/evaluate_compliance"
+    args:
+      description: "Review code in current Rebel session for CIS v8, NRS 603A, and Nevada PSP compliance"
+      standards: ["CIS", "NRS_603A", "NV_PSP"]
+
+  - type: message
+    content: |
+      Perform a compliance review of all files in chat against:
+      - CIS Controls v8 (focus on Controls 1-8: inventory, software, data, config, accounts, access, audit, malware)
+      - NRS 603A (Nevada data breach notification — PII handling, encryption requirements)
+      - Nevada Privacy and Security Policy (PSP) requirements
+
+      For each gap found:
+      1. Identify the specific control or requirement violated
+      2. Explain what needs to change
+      3. Provide the corrected code or configuration
+      4. Add the compliance citation as a comment in code
+
+      Output format:
+      ## Compliance Gaps
+      ### [Control ID] — [Control Name]
+      **File:** path/to/file.ts:line
+      **Issue:** ...
+      **Fix:** ...
+
+      ## Passed Controls
+      List controls that are already met.
+
+      ## Compliance Score
+      X/Y controls passing (Z%)

@@ -1,0 +1,39 @@
+name: new-mcp-agent
+description: "Scaffold a complete new MCP agent matching CMND Center patterns (port, storage, tools, Dockerfile)"
+tags: [scaffold, mcp, cmnd, architecture]
+
+steps:
+  - type: message
+    confirm: true
+    content: |
+      Scaffold a complete new CMND Center MCP agent. Agent details: {args}
+
+      Follow the arch-angel-mcp pattern EXACTLY:
+      1. Read arch-angel-mcp/index.ts, arch-angel-mcp/storage.ts, arch-angel-mcp/tools.ts, arch-angel-mcp/types.ts as reference
+      2. Create <agent-name>-mcp/ directory with:
+         - package.json (same dependencies: @modelcontextprotocol/sdk ^1.26.0, better-sqlite3, express, zod)
+         - tsconfig.json (Node16 module, outDir ".")
+         - types.ts (domain-specific interfaces)
+         - storage.ts (SQLiteStorage class, WAL mode, parameterized queries)
+         - tools.ts (TOOL_DEFINITIONS array + createToolHandler factory)
+         - index.ts (StreamableHTTP transport, health endpoint, REST API, static dashboard)
+         - public/index.html (dark CMND theme: #080808 bg, #76B900 accent)
+      3. Create containers/<agent-name>/Dockerfile (multi-stage node:22-slim, non-root cmnd user)
+      4. Add NIST 800-53 SECURITY CONTROL comments on all security-relevant code
+      5. Add // DAIV CERTIFIED to every file header
+
+  - type: message
+    content: |
+      Now add this new agent to docker-compose.yml following the arch-angel service block pattern:
+      - Profile: [agents]
+      - Mount <agent-name>_data:/app/data volume
+      - Node healthcheck on the assigned port
+      - depends_on: memory-vault + ollama-brain (healthy)
+      - Add the volume to the volumes section
+
+  - type: message
+    content: |
+      Generate 5 LoRA training pairs for this new agent's domain and save them as a stub
+      lora-agents/<agent-name>/train.jsonl
+
+      Also update docs/TASKS.md by adding a task for "Expand LoRA pairs to 25 for <agent-name>".

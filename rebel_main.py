@@ -64,8 +64,10 @@ def _print_banner() -> None:
     print("  UNLV Rebels | Nevada Public Sector | DAIV CERTIFIED")
     print("  PQC: Routes through pqc-proxy (ML-KEM-768 + ML-DSA-65)")
     print("=" * 60)
-    print("  Extensions: model-compliance | captain's-log | shared-memory")
-    print("              plan-mode | bash-tools | chromadb | dashboard")
+    print("  Extensions: model-compliance | hooks | captain's-log")
+    print("              shared-memory | plan-mode | bash-tools")
+    print("              skills | agent-mode | router | analytics")
+    print("              yolo | chromadb | dashboard")
     print("=" * 60)
 
 # ─────────────────────────────────────────────
@@ -147,35 +149,81 @@ def _install_coder_hooks() -> None:
 
 def _apply_coder_patches(coder) -> None:
     """Apply all CMND extension patches to a Coder instance."""
-    # Shared state commands (/tasks, /task-done, /remember)
+
+    # ── 1. Hooks system — MUST be first (all other extensions depend on it) ──
+    try:
+        from cmnd.hooks import patch_coder as patch_hooks, load_user_hooks
+        patch_hooks(coder)
+        load_user_hooks(PROJECT_ROOT)
+    except Exception as e:
+        print(f"[rebel] hooks patch error: {e}")
+
+    # ── 2. Shared state commands (/tasks, /task-done, /remember) ──
     try:
         from cmnd.shared_state import register_commands
         register_commands(coder)
     except Exception as e:
         print(f"[rebel] shared_state patch error: {e}")
 
-    # Plan mode (/plan, /plan-on, /plan-off)
+    # ── 3. Plan mode (/plan, /plan-on, /plan-off) ──
     try:
         from cmnd.plan_mode import patch_coder as patch_plan
         patch_plan(coder)
     except Exception as e:
         print(f"[rebel] plan_mode patch error: {e}")
 
-    # Bash tools (/run-approved, /approved-list)
+    # ── 4. Bash tools (/run-approved, /approved-list) ──
     try:
         from cmnd.bash_tools import patch_coder as patch_bash
         patch_bash(coder)
     except Exception as e:
         print(f"[rebel] bash_tools patch error: {e}")
 
-    # ChromaDB semantic search (/search)
+    # ── 5. Skills / macro system (/skill, /skills) ──
+    try:
+        from cmnd.skills import register_commands as register_skills, load_skills_dir
+        load_skills_dir(PROJECT_ROOT)
+        register_skills(coder)
+    except Exception as e:
+        print(f"[rebel] skills patch error: {e}")
+
+    # ── 6. Agent mode (/agent, /agent-auto, /agent-status) ──
+    try:
+        from cmnd.agent_mode import register_commands as register_agent
+        register_agent(coder)
+    except Exception as e:
+        print(f"[rebel] agent_mode patch error: {e}")
+
+    # ── 7. Multi-model router (/route) ──
+    try:
+        from cmnd.router import register_commands as register_router, install_routing_hook
+        register_router(coder)
+        install_routing_hook()
+    except Exception as e:
+        print(f"[rebel] router patch error: {e}")
+
+    # ── 8. Analytics bridge (telemetry → Captain's Log) ──
+    try:
+        from cmnd.analytics_bridge import install as install_analytics
+        install_analytics(coder)
+    except Exception as e:
+        print(f"[rebel] analytics_bridge patch error: {e}")
+
+    # ── 9. YOLO mode (/yolo [on|off|status]) ──
+    try:
+        from cmnd.yolo import register_commands as register_yolo
+        register_yolo(coder)
+    except Exception as e:
+        print(f"[rebel] yolo patch error: {e}")
+
+    # ── 10. ChromaDB semantic search (/search) ──
     try:
         from cmnd.chroma_repomap import patch_coder as patch_chroma
         patch_chroma(coder)
     except Exception as e:
         print(f"[rebel] chroma_repomap patch error: {e}")
 
-    # Captain's Log exit hook
+    # ── 11. Captain's Log exit hook (shutdown) ──
     try:
         from cmnd.context_bridge import install_exit_hook
         install_exit_hook()
