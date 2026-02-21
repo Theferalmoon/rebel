@@ -1,0 +1,23 @@
+name: add-nist-annotations
+description: "Add NIST 800-53 SECURITY CONTROL comments to all security-relevant code"
+tags: [security, nist, annotations, cmnd]
+
+steps:
+  - type: message
+    content: |
+      Add NIST 800-53 security control annotations to all files in chat.
+
+      Rules:
+      - Every function or block that handles authentication → // SECURITY CONTROL: IA-2 (Identification and Authentication)
+      - Every function that validates input from external sources → // SECURITY CONTROL: SI-10 (Information Input Validation)
+      - Every network boundary (HTTP client, socket, API call) → // SECURITY CONTROL: SC-7 (Boundary Protection) and // TRUST BOUNDARY: <description>
+      - Every encryption/crypto operation → // SECURITY CONTROL: SC-28 (Protection at Rest) or SC-8 (Transmission Confidentiality)
+      - Every audit log or event recording → // SECURITY CONTROL: AU-2 (Audit Events)
+      - Every permission check or access control → // SECURITY CONTROL: AC-3 (Access Enforcement)
+      - Every error handler that might leak info → // SECURITY CONTROL: SI-11 (Error Handling)
+      - Database writes → // SECURITY CONTROL: SC-28 (Protection at Rest)
+      - Session management → // SECURITY CONTROL: AC-12 (Session Termination)
+      - Rate limiting / DoS protection → // SECURITY CONTROL: SC-5 (Denial of Service Protection)
+
+      Do NOT add comments to every line — only to security-relevant code sections.
+      Keep comments concise: one line per control, placed directly above the relevant code.

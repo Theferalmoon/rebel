@@ -1,0 +1,31 @@
+name: docker-health
+description: "Full CMND Center fleet health check — containers, disk, memory, services"
+tags: [docker, ops, cmnd, monitoring]
+
+steps:
+  - type: shell
+    content: "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' 2>/dev/null"
+
+  - type: shell
+    content: "df -h / /var /home 2>/dev/null | head -10"
+
+  - type: shell
+    content: "free -h 2>/dev/null"
+
+  - type: mcp
+    content: "watchdog/get_system_snapshot"
+
+  - type: mcp
+    content: "watchdog/get_active_alerts"
+
+  - type: message
+    content: |
+      Based on the docker ps output, disk usage, memory, and watchdog data above:
+
+      1. List any containers that are NOT healthy or are restarting
+      2. List any disk partitions above 80% usage
+      3. List any active alerts from the Watchdog
+      4. Recommend specific actions to resolve issues (docker restart, docker builder prune, etc.)
+      5. Rate overall fleet health: RED / YELLOW / GREEN
+
+      Keep the report concise — actionable items only.

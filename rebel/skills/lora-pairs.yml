@@ -1,0 +1,33 @@
+name: lora-pairs
+description: "Generate LoRA training pairs from current code context for the named agent"
+tags: [lora, training, ml, cmnd]
+
+steps:
+  - type: message
+    content: |
+      Generate 10 high-quality LoRA training pairs based on the code and context currently in chat.
+
+      Target agent: {args}
+
+      Format each pair as JSONL (one JSON object per line, NO trailing commas):
+      {"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
+
+      Guidelines for quality pairs:
+      - Each pair should teach a specific, reusable skill the agent needs
+      - User messages should be realistic queries someone would actually ask
+      - Assistant responses should be complete, accurate, and demonstrate expertise
+      - Cover: diagnosis, explanation, troubleshooting, best practices, edge cases
+      - Vary the complexity — some simple Q&A, some multi-step reasoning
+      - Do NOT include code the agent shouldn't know about (secrets, internal IPs)
+
+      Output ONLY the JSONL pairs, no other text. Each line must be valid JSON.
+
+  - type: message
+    content: |
+      Validate the JSONL pairs you just generated:
+      - Confirm each line parses as valid JSON
+      - Confirm each has the {"messages": [...]} structure
+      - Flag any pairs that are too generic or too similar to others
+      - Suggest 3 additional pair topics that would improve coverage
+
+      Then generate those 3 additional pairs.
