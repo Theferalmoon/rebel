@@ -217,14 +217,29 @@ def _apply_coder_patches(coder) -> None:
     except Exception as e:
         print(f"[rebel] yolo patch error: {e}")
 
-    # ── 10. ChromaDB semantic search (/search) ──
+    # ── 10. File annotation watcher (/watch) ──
+    try:
+        from cmnd.watch_mode import register_commands as register_watch
+        register_watch(coder, PROJECT_ROOT)
+    except Exception as e:
+        print(f"[rebel] watch_mode patch error: {e}")
+
+    # ── 11. Rebel as MCP server (port 3035) ──
+    try:
+        from cmnd.mcp_server import install as install_mcp_server, register_commands as register_mcp
+        install_mcp_server(coder)
+        register_mcp(coder)
+    except Exception as e:
+        print(f"[rebel] mcp_server patch error: {e}")
+
+    # ── 12. ChromaDB semantic search (/search) ──
     try:
         from cmnd.chroma_repomap import patch_coder as patch_chroma
         patch_chroma(coder)
     except Exception as e:
         print(f"[rebel] chroma_repomap patch error: {e}")
 
-    # ── 11. Captain's Log exit hook (shutdown) ──
+    # ── 13. Captain's Log exit hook (shutdown) ──
     try:
         from cmnd.context_bridge import install_exit_hook
         install_exit_hook()

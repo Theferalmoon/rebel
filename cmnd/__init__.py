@@ -20,5 +20,7 @@ MODULES = [
     "cmnd.analytics_bridge",   # Analytics → Captain's Log telemetry
     "cmnd.yolo",               # YOLO mode — high-risk expanded permissions
     "cmnd.chroma_repomap",     # ChromaDB semantic repo augmentation
+    "cmnd.watch_mode",         # File annotation watcher (# REBEL: ...)
+    "cmnd.mcp_server",         # Rebel as MCP server (port 3035)
     "cmnd.dashboard",          # REST status API on port 3033
 ]

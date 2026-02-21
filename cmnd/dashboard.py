@@ -5,6 +5,7 @@
 # DAIV CERTIFIED
 
 import json
+import os
 import threading
 import time
 from datetime import datetime
@@ -96,6 +97,103 @@ class RebetHandler(BaseHTTPRequestHandler):
         elif path in ("/", "/dashboard"):
             self._send_html(_dashboard_html())
 
+        elif path == "/api/models":
+            try:
+                from cmnd.mcp_server import _tool_rebel_list_models
+                self._send_json(_tool_rebel_list_models({}))
+            except Exception as e:
+                self._send_json({"error": str(e)}, 500)
+
+        elif path == "/api/watch":
+            try:
+                from cmnd.watch_mode import is_watching, scan_once
+                project_root = os.environ.get("REBEL_PROJECT_ROOT", ".")
+                pending = scan_once(project_root)
+                self._send_json({
+                    "watching": is_watching(),
+                    "pending_annotations": len(pending),
+                    "annotations": pending[:20],
+                })
+            except Exception as e:
+                self._send_json({"watching": False, "error": str(e)})
+
+        elif path == "/api/mcp-server":
+            try:
+                from cmnd.mcp_server import _sessions, TOOLS, MCP_PORT
+                self._send_json({
+                    "port": MCP_PORT,
+                    "active_sessions": len(_sessions),
+                    "tools": list(TOOLS.keys()),
+                })
+            except Exception as e:
+                self._send_json({"error": str(e)})
+
+        else:
+            self._send_json({"error": "Not found"}, 404)
+
+    def do_POST(self) -> None:
+        """
+        POST /api/chat — Structured session endpoint (inspired by SShadowS/aider-restapi, Apache-2.0)
+          Request:  { "message": "..." }
+          Response: { "messages": [{ "type": "assistant|error|system", "content": "...",
+                                     "tokens": N, "cost": N }] }
+        """
+        path = self.path.split("?")[0]
+        length = int(self.headers.get("Content-Length", 0))
+        body = b""
+        if length:
+            body = self.rfile.read(length)
+
+        if path == "/api/chat":
+            try:
+                req = json.loads(body) if body else {}
+            except Exception:
+                self._send_json({"error": "invalid JSON"}, 400)
+                return
+
+            message = req.get("message", "").strip()
+            if not message:
+                self._send_json({"error": "message is required"}, 400)
+                return
+
+            coder = _SESSION_DATA.get("_coder")
+            if not coder:
+                self._send_json({
+                    "messages": [{
+                        "type": "error",
+                        "content": "No active Rebel session. Start rebel first.",
+                        "tokens": 0,
+                        "cost": 0.0,
+                    }]
+                }, 503)
+                return
+
+            tokens_before = (getattr(coder, "total_tokens_sent", 0) +
+                             getattr(coder, "total_tokens_received", 0))
+            cost_before = getattr(coder, "total_cost", 0.0)
+
+            try:
+                coder.run(with_message=message)
+                tokens_after = (getattr(coder, "total_tokens_sent", 0) +
+                                getattr(coder, "total_tokens_received", 0))
+                cost_after = getattr(coder, "total_cost", 0.0)
+                self._send_json({
+                    "messages": [{
+                        "type": "assistant",
+                        "content": "Rebel processed the request.",
+                        "tokens": tokens_after - tokens_before,
+                        "cost": round(cost_after - cost_before, 6),
+                    }]
+                })
+            except Exception as e:
+                self._send_json({
+                    "messages": [{
+                        "type": "error",
+                        "content": str(e),
+                        "tokens": 0,
+                        "cost": 0.0,
+                    }]
+                }, 500)
         else:
             self._send_json({"error": "Not found"}, 404)
 
