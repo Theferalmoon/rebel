@@ -49,6 +49,11 @@ class HookContext:
     cancelled: bool = False             # Set True to cancel the event
     cancel_reason: Optional[str] = None
 
+    def cancel(self, reason: str = "") -> None:
+        """Signal cancellation of this event."""
+        self.cancelled = True
+        self.cancel_reason = reason
+
 
 # ─────────────────────────────────────────────
 # Hook registry

@@ -36,6 +36,7 @@ playwright = { file = "requirements/requirements-playwright.txt" }
 
 [tool.setuptools]
 include-package-data = true
+py-modules = ["rebel_main"]
 
 [tool.setuptools.packages.find]
 include = ["aider", "cmnd"]

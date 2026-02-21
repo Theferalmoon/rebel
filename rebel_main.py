@@ -182,7 +182,8 @@ def _apply_coder_patches(coder) -> None:
     # ── 5. Skills / macro system (/skill, /skills) ──
     try:
         from cmnd.skills import register_commands as register_skills, load_skills_dir
-        load_skills_dir(PROJECT_ROOT)
+        load_skills_dir(str(REBEL_DIR))  # Built-in skills from rebel fork dir
+        load_skills_dir(PROJECT_ROOT)    # Project-specific skills (optional)
         register_skills(coder)
     except Exception as e:
         print(f"[rebel] skills patch error: {e}")
