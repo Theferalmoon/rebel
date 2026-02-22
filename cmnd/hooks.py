@@ -248,7 +248,8 @@ def _patch_send_message(coder) -> None:
             print(f"[rebel-hooks] Message cancelled: {ctx.cancel_reason}")
             return
 
-        result = original(inp, *args, **kwargs)
+        # send_message is a generator (yield from) — must iterate it
+        result = yield from original(inp, *args, **kwargs)
 
         # POST_MESSAGE
         fire(HookEvent.POST_MESSAGE, coder=coder, message=inp,

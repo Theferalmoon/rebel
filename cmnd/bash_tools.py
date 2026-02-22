@@ -130,18 +130,26 @@ def patch_coder(coder: "Coder") -> None:
     if not original_run:
         return
 
-    def patched_run_shell(commands_list: list[str], *args, **kwargs):
+    def patched_run_shell(*args, **kwargs):
+        # run_shell_commands(self) takes no args — reads from self.shell_commands
+        commands = list(getattr(coder, "shell_commands", []))
+        if not commands:
+            return original_run(*args, **kwargs)
         results = []
-        for cmd in commands_list:
+        remaining = []
+        for cmd in commands:
             if is_auto_approved(cmd):
                 rc, out = run_approved(cmd, cwd=None, log=True)
                 results.append((cmd, rc, out))
                 if out:
                     coder.io.tool_output(out)
             else:
-                # Fall through to original (which asks user)
-                original_run([cmd], *args, **kwargs)
-        return results
+                remaining.append(cmd)
+        if remaining:
+            # Let original handle non-approved commands
+            coder.shell_commands = remaining
+            return original_run(*args, **kwargs)
+        return "\n".join(r[2] for r in results if r[2])
 
     coder.run_shell_commands = patched_run_shell
 
