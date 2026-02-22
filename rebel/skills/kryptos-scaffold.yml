@@ -1,0 +1,20 @@
+name: kryptos-scaffold
+description: Scaffold the Kryptos MCP agent — DoD/Fed OS hardening advisor (port 3036)
+prompt: |
+  Build the Kryptos MCP agent following the spec in rebel/context/kryptos-brief.md and TASKS.md.
+
+  Work on branch: rebel/kryptos-agent
+
+  Step 1: Create kryptos-mcp/package.json and tsconfig.json following the same pattern as cmnd-sentinel/
+  Step 2: Create kryptos-mcp/types.ts — FipsAssessment, StigControl, PqcInventory, KickstartConfig, ComplianceReport types
+  Step 3: Create kryptos-mcp/knowledge.ts — static knowledge base with FIPS cert numbers, key STIG controls, PQC algorithm status, compliance framework mapping
+  Step 4: Create kryptos-mcp/storage.ts — SQLite with better-sqlite3, tables: assessments, reports, kickstart_history
+  Step 5: Create kryptos-mcp/tools.ts — all 9 tool handlers
+  Step 6: Create kryptos-mcp/index.ts — Express + StreamableHTTP MCP server, port 3036
+  Step 7: Create kryptos-mcp/public/index.html — dark-themed mini dashboard
+  Step 8: Create containers/kryptos/Dockerfile — node:22-slim, non-root cmnd user
+  Step 9: Add kryptos service to docker-compose.yml
+  Step 10: Create lora-agents/kryptos/train.jsonl (25 pairs) and eval.jsonl (10 pairs)
+  Step 11: Create lora-agents/kryptos/TRAINING-METHODOLOGY.md
+
+  Follow EXACT pattern from cmnd-sentinel/index.ts. Use SECURITY CONTROL comments throughout. DAIV CERTIFIED in every file.

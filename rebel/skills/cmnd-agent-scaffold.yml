@@ -1,0 +1,22 @@
+name: cmnd-agent-scaffold
+description: Scaffold a new CMND Center MCP agent from scratch. Provide agent name and port.
+prompt: |
+  Scaffold a new CMND Center MCP agent. You need: agent name, port number, and purpose.
+
+  Ask the user: "What is the agent name, port number, and what does it do?"
+
+  Then create:
+  1. {name}-mcp/index.ts — Express + StreamableHTTP MCP server on the given port
+  2. {name}-mcp/tools.ts — MCP tool handlers
+  3. {name}-mcp/storage.ts — SQLite with better-sqlite3
+  4. {name}-mcp/types.ts — TypeScript types
+  5. {name}-mcp/package.json + tsconfig.json
+  6. containers/{name}/Dockerfile — node:22-slim, non-root cmnd user
+  7. docker-compose.yml entry — add service with correct port, volume, network, profile: core
+  8. lora-agents/{name}/train.jsonl — 15 seed training pairs
+  9. lora-agents/{name}/eval.jsonl — 5 eval pairs
+
+  Pattern: follow cmnd-sentinel/index.ts exactly.
+  Required in every file: SECURITY CONTROL comments + DAIV CERTIFIED header.
+  Required: log key events to Captain's Log (POST http://mcp-server:3001/mcp).
+  Required: /health endpoint returns { status: "ok", service: "{name}" }.
